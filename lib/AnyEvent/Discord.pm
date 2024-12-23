@@ -16,7 +16,7 @@ class AnyEvent::Discord 0.8 {
   has version => ( is => 'ro', isa => Str, default => $VERSION );
 
   has token => ( is => 'rw', isa => Str, required => 1 );
-  has api_version => ( is => 'rw', isa => Num, default => 10)
+  has api_version => ( is => 'rw', isa => Num, default => 10);
   has base_uri => ( is => 'rw', isa => Str, default => 'https://discord.com/api/v' );
   has socket_options => ( is => 'rw', isa => HashRef, default => sub { { max_payload_size => 1024 * 1024 } } );
   has verbose => ( is => 'rw', isa => Num, default => 0 );
@@ -25,7 +25,7 @@ class AnyEvent::Discord 0.8 {
       (
           1 <<  0 | # GUILDS
           1 <<  9 | # GUILD_MESSAGES
-          1 << 15 | # MESSAGE_CONTENT
+          1 << 15  # MESSAGE_CONTENT
       )
   );
   has guilds => ( is => 'ro', isa => HashRef, default => sub { {} } );
