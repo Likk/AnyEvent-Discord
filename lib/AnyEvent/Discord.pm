@@ -229,10 +229,11 @@ class AnyEvent::Discord 0.8 {
         large_threshold => 250,
         shard           => [0, 1],
         properties => {
-          '$os'      => 'linux',
-          '$browser' => $self->user_agent(),
-          '$device'  => $self->user_agent(),
-        }
+          'os'      => 'linux',
+          'browser' => $self->user_agent(),
+          'device'  => $self->user_agent(),
+        },
+        intents => $self->intents,
       }
     }));
   }
