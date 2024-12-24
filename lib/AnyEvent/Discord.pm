@@ -1,5 +1,5 @@
 package AnyEvent::Discord;
-use v5.20;
+use v5.14; # moops#class requires v5.14 // since Perl 5.39.8. https://perldoc.perl.org/perldeprecation#Changing-use-VERSION-while-another-use-VERSION-is-in-scope
 use Moops;
 
 class AnyEvent::Discord 0.8 {
