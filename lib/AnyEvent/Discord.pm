@@ -1,5 +1,5 @@
 package AnyEvent::Discord;
-use v5.20;
+use v5.14; # moops#class requires v5.14 // since Perl 5.39.8. https://perldoc.perl.org/perldeprecation#Changing-use-VERSION-while-another-use-VERSION-is-in-scope
 use Moops;
 
 class AnyEvent::Discord 0.8 {
@@ -16,11 +16,18 @@ class AnyEvent::Discord 0.8 {
   has version => ( is => 'ro', isa => Str, default => $VERSION );
 
   has token => ( is => 'rw', isa => Str, required => 1 );
-  has base_uri => ( is => 'rw', isa => Str, default => 'https://discordapp.com/api' );
+  has api_version => ( is => 'rw', isa => Num, default => 10);
+  has base_uri => ( is => 'rw', isa => Str, default => 'https://discord.com/api/v' );
   has socket_options => ( is => 'rw', isa => HashRef, default => sub { { max_payload_size => 1024 * 1024 } } );
   has verbose => ( is => 'rw', isa => Num, default => 0 );
   has user_agent => ( is => 'rw', isa => Str, default => sub { 'Perl-AnyEventDiscord/' . shift->VERSION } );
-
+  has intents => (is => 'rw', isa => Num, default =>
+      (
+          1 <<  0 | # GUILDS
+          1 <<  9 | # GUILD_MESSAGES
+          1 << 15  # MESSAGE_CONTENT
+      )
+  );
   has guilds => ( is => 'ro', isa => HashRef, default => sub { {} } );
   has channels => ( is => 'ro', isa => HashRef, default => sub { {} } );
   has users => ( is => 'ro', isa => HashRef, default => sub { {} } );
@@ -100,7 +107,7 @@ class AnyEvent::Discord 0.8 {
       $self->_debug('Connected to ' . $gateway);
 
       $self->_socket($socket);
-  
+
       # If we send malformed content, bail out
       $socket->on('parse_error', sub {
         my ($c, $error) = @_;
@@ -194,7 +201,7 @@ class AnyEvent::Discord 0.8 {
     );
     my $request = HTTP::Request->new(
       uc($method),
-      join('/', $self->base_uri, $path),
+      sprintf("%s%d/%s", $self->base_uri, $self->api_version, $path),
       $headers,
       $payload,
     );
@@ -222,10 +229,11 @@ class AnyEvent::Discord 0.8 {
         large_threshold => 250,
         shard           => [0, 1],
         properties => {
-          '$os'      => 'linux',
-          '$browser' => $self->user_agent(),
-          '$device'  => $self->user_agent(),
-        }
+          'os'      => 'linux',
+          'browser' => $self->user_agent(),
+          'device'  => $self->user_agent(),
+        },
+        intents => $self->intents,
       }
     }));
   }
@@ -249,7 +257,7 @@ class AnyEvent::Discord 0.8 {
     # Add the requested version and encoding to the provided URL
     my $gateway = $payload->{url};
     $gateway .= '/' unless ($gateway =~/\/$/);
-    $gateway .= '?v=6&encoding=json';
+    $gateway .= sprintf("?v=%s&encoding=json", $self->api_version);
     return $gateway;
   }
 

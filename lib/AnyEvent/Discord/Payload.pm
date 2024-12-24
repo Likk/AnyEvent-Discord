@@ -1,5 +1,6 @@
-use v5.20;
 use Moops;
+use v5.14; # moops#class requires v5.14 // since Perl 5.39.8. https://perldoc.perl.org/perldeprecation#Changing-use-VERSION-while-another-use-VERSION-is-in-scope
+
 
 class AnyEvent::Discord::Payload {
   use JSON qw(decode_json encode_json);
